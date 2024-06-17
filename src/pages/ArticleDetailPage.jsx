@@ -8,6 +8,7 @@ import ArticleDialog from "../components/ArticleDialog";
 import { BASE_URL } from "../constants";
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import EditArticleHistoriesDialog from "../components/EditArticleHistoriesDialog";
 
 const ArticleDetailPage = () => {
     const {articleWebId} = useParams();
@@ -20,11 +21,14 @@ const ArticleDetailPage = () => {
     const [isNotFound, setIsNotFound] = useState(false);
     const [deleteArticleId, setDeleteArticleId] = useState(null);
     const [editArticleObj, setEditArticleObj] = useState(null);
+    const [editHistoriesArticleId, setEditHistoriesArticleId] = useState(null);
 
     const closeEditArticleDialog = () => setEditArticleObj(null);
     const openEditArticleDialog = (article) => setEditArticleObj(article);
     const closeDeleteArticleDialog = () => setDeleteArticleId(null);
     const openDeleteArticleDialog = (article) => setDeleteArticleId(article.articleWebId);
+    const closeEditHistoriesDialog = () => setEditHistoriesArticleId(null);
+    const openEditHistoriesDialog = (articleId) => setEditHistoriesArticleId(articleId);
 
     const fetchArticle = async () => {
         setIsLoading(true);
@@ -59,10 +63,16 @@ const ArticleDetailPage = () => {
     return isNotFound ? <Typography variant="h4" component="h1" align="center">Article Not Found</Typography> :
         <>
             <Box padding={isMedium ? "0 25%" : "0"}>
-                <ArticleCard isLoading={isLoading} article={article} deleteButtonCallback={openDeleteArticleDialog} editButtonCallback={openEditArticleDialog} />
+                <ArticleCard isLoading={isLoading} article={article} deleteButtonCallback={openDeleteArticleDialog} 
+                    editButtonCallback={openEditArticleDialog} openHistoriesButtonCallback={openEditHistoriesDialog} />
             </Box>
-            <ArticleDialog isEdit={true} key={editArticleObj} title="Edit Article" open={!!editArticleObj} onClose={closeEditArticleDialog} onSubmit={editArticle} 
-                defaultTitleField={editArticleObj ? editArticleObj.title : ""} defaultBodyField={editArticleObj ? editArticleObj.body : ""}/>
+
+            <ArticleDialog isEdit={true} key={editArticleObj} title="Edit Article" open={!!editArticleObj} 
+                onClose={closeEditArticleDialog} onSubmit={editArticle} defaultTitleField={editArticleObj ? editArticleObj.title : ""} 
+                defaultBodyField={editArticleObj ? editArticleObj.body : ""}/>
+
+            <EditArticleHistoriesDialog key={editHistoriesArticleId} open={!!editHistoriesArticleId} 
+                onClose={closeEditHistoriesDialog} articleWebId={editHistoriesArticleId} />
 
             <DeleteArticleDialog open={!!deleteArticleId} deleteCallback={deleteArticleCallback} 
                 onClose={closeDeleteArticleDialog} articleWebId={deleteArticleId} />

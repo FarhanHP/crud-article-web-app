@@ -8,6 +8,8 @@ import ArticleProvider from "../providers/ArticleProvider";
 import DeleteArticleDialog from "../components/DeleteArticleDialog";
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
+import ScreenHelper from "../helpers/ScreenHelper";
+import EditArticleHistoriesDialog from "../components/EditArticleHistoriesDialog";
 
 
 const ARTICLE_PER_PAGE_COUNT = 10;
@@ -32,11 +34,14 @@ const TimeLinePage = (props) => {
     const [deleteArticleId, setDeleteArticleId] = useState(null);
     const [editArticleObj, setEditArticleObj] = useState(null);
     const [isFetching, setIsFetching] = useState(false);
+    const [editHistoriesArticleId, setEditHistoriesArticleId] = useState(null);
 
     const openCreateArticleDialog = () => setIsOpenCreateArticleDialog(true);
     const closeCreateArticleDialog = () => setIsOpenCreateArticleDialog(false);
     const closeEditArticleDialog = () => setEditArticleObj(null);
     const openEditArticleDialog = (article) => setEditArticleObj(article);
+    const closeEditHistoriesDialog = () => setEditHistoriesArticleId(null);
+    const openEditHistoriesDialog = (articleId) => setEditHistoriesArticleId(articleId);
     const closeDeleteArticleDialog = () => setDeleteArticleId(null);
     const openDeleteArticleDialog = (article) => setDeleteArticleId(article.articleWebId);
 
@@ -74,20 +79,20 @@ const TimeLinePage = (props) => {
         await ArticleProvider.editArticle(editArticleObj.articleWebId, title, body);
         window.location.href = ArticleHelper.createArticleLink(editArticleObj.articleWebId);
     }
+    
+    const onScrollToBottom = async () => {
+        if(!ScreenHelper.isInBottom() || isFetching || !hasNextPage) {
+            return;
+        }
+
+        fetchAndAppendArticles(articles);
+    };
 
     useEffect(() => {
         fetchInitialArticles();
     }, []);
 
     useEffect(() => {
-        const isInBottom = () =>  window.scrollY + window.innerHeight > document.body.scrollHeight - 100;
-        const onScrollToBottom = async () => {
-            if(!isInBottom() || isFetching || !hasNextPage) {
-                return;
-            }
-    
-            fetchAndAppendArticles(articles);
-        }
         window.addEventListener("scroll", onScrollToBottom);
 
         return () => { window.removeEventListener("scroll", onScrollToBottom) };
@@ -99,7 +104,7 @@ const TimeLinePage = (props) => {
                 {articles.map(articleUIObject => 
                     <ArticleCard key={articleUIObject.key} isLoading={articleUIObject.isLoading} 
                         article={articleUIObject.article} deleteButtonCallback={openDeleteArticleDialog} 
-                        editButtonCallback={openEditArticleDialog} />
+                        editButtonCallback={openEditArticleDialog} openHistoriesButtonCallback={openEditHistoriesDialog} />
                 )}
             </Box>
 
@@ -109,8 +114,11 @@ const TimeLinePage = (props) => {
 
             <ArticleDialog title="Create New Article" open={isOpenCreateArticleDialog} onClose={closeCreateArticleDialog} onSubmit={createArticle}/>
 
-            <ArticleDialog isEdit={true} key={editArticleObj} title="Edit Article" open={!!editArticleObj} onClose={closeEditArticleDialog} onSubmit={editArticle} 
+            <ArticleDialog key={editArticleObj} isEdit={true} title="Edit Article" open={!!editArticleObj} onClose={closeEditArticleDialog} onSubmit={editArticle} 
                 defaultTitleField={editArticleObj ? editArticleObj.title : ""} defaultBodyField={editArticleObj ? editArticleObj.body : ""}/>
+
+            <EditArticleHistoriesDialog key={editHistoriesArticleId} open={!!editHistoriesArticleId} 
+                onClose={closeEditHistoriesDialog} articleWebId={editHistoriesArticleId} />
 
             <DeleteArticleDialog open={!!deleteArticleId} deleteCallback={deleteArticleCallback} 
                 onClose={closeDeleteArticleDialog} articleWebId={deleteArticleId} />

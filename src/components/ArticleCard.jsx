@@ -4,12 +4,16 @@ import { useState } from "react";
 import ArticleHelper from "../helpers/ArticleHelper";
 import { grey} from "@mui/material/colors";
 import dayjs from "dayjs";
+import LoadingBody from "./LoadingBody";
+import LoadingTitle from "./LoadingTitle";
 
 const ArticleCard = ({
     isLoading = false, 
     article = {}, 
     editButtonCallback=(article) => {}, 
-    deleteButtonCallback=(article) => {}}) => {
+    deleteButtonCallback=(article) => {},
+    openHistoriesButtonCallback=(articleId) => {}
+}) => {
 
     const displayTime = isLoading ? null : dayjs(article.createdAt * 1000).fromNow();
     const [menuAnchor, setMenuAnchor] = useState(null);
@@ -29,6 +33,11 @@ const ArticleCard = ({
         deleteButtonCallback(article);
     };
 
+    const handleOpenHistoriesCLick = () => {
+        setMenuAnchor(null);
+        openHistoriesButtonCallback(article.articleWebId);
+    };
+
     const title = (
         <Box display="flex">
             <Typography variant="h2" component="h2" fontSize="1.2rem" fontWeight={700} flex={1} margin="auto 0">
@@ -45,7 +54,7 @@ const ArticleCard = ({
                         Copy Link
                     </MenuItem>
                     {article.edited && (
-                        <MenuItem>
+                        <MenuItem onClick={handleOpenHistoriesCLick}>
                             Show Edit History
                         </MenuItem>
                     )}
@@ -60,33 +69,17 @@ const ArticleCard = ({
         </Box>
     );
 
-    const loadingTitle = (
-        <Skeleton variant="text" fontSize="1.2rem" width="75%" />
-    );
-
     const body = (
         <Typography variant="body2" align="justify" style={{ wordWrap: "break-word" }}>
             {article.body}
         </Typography>
     );
 
-    const loadingBody = (
-        <>
-            <Skeleton variant="text" fontSize="1.2rem" width="100%" />
-
-            <Skeleton variant="text" fontSize="1.2rem" width="100%" />
-
-            <Skeleton variant="text" fontSize="1.2rem" width="100%" />
-
-            <Skeleton variant="text" fontSize="1.2rem" width="75%" />
-        </>
-    );
-
     return (
         <Box margin="0.5rem">
             <Card variant="outlined">
                 <Box margin="0.5rem">
-                    {isLoading ? loadingTitle : title}
+                    {isLoading ? <LoadingTitle/> : title}
 
                     {!isLoading && (
                         <Typography variant="body2" color={grey[500]}>
@@ -96,7 +89,7 @@ const ArticleCard = ({
 
                     <Box marginTop="0.5rem" />
 
-                    {isLoading ? loadingBody : body}
+                    {isLoading ? <LoadingBody /> : body}
                 </Box>
             </Card>
         </Box>

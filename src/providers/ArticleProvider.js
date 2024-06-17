@@ -69,6 +69,21 @@ const ArticleProvider = {
         }
 
         return responseJson;
+    },
+    getEditHistories: async (articleWebId, pageNumber, pageSize) => {
+        const response = await fetch(`${ARTICLE_API_BASE_URL}/api/article/${articleWebId}/getEditHistories?pageNumber=${pageNumber}&pageSize=${pageSize}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const responseJson = await response.json();
+        
+        if(responseJson.code !== 200) {
+            throw Error("Can't get the edit histories");
+        }
+
+        return responseJson;
     }
 };
 
