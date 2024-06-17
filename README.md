@@ -1,4 +1,4 @@
-# Crud Article Website
+# CRUD Article Website
 
 Simple CRUD article website. 
 
