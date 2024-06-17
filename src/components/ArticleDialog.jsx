@@ -27,7 +27,7 @@ const ArticleDialog = ({
     const onTitleChange = (event) => {
         const newValue = event.target.value;
 
-        verifyValue();
+        verifyValue(newValue, null);
 
         if(newValue.trim().length <= 0) {
             setTitleValue("");
@@ -41,7 +41,7 @@ const ArticleDialog = ({
     const onBodyChange = (event) => {
         const newValue = event.target.value;
 
-        verifyValue();
+        verifyValue(null, newValue);
 
         if(newValue.trim().length <= 0) {
             setBodyValue("");
@@ -52,9 +52,12 @@ const ArticleDialog = ({
         setBodyValue(newValue.replace(/\n/g, "").slice(0, MAX_BODY_LENGTH))
     };
 
-    const verifyValue = () => {
-        setIsSubmitDisable((titleValue === defaultTitleField && bodyValue === defaultBodyField) || 
-            bodyValue.trim().length <= 0 || titleValue.trim().length <= 0);
+    const verifyValue = (newTitleValue, newBodyValue) => {
+        const latestBodyValue = newBodyValue ? newBodyValue : bodyValue;
+        const latestTitleValue = newTitleValue ? newTitleValue : titleValue;
+
+        setIsSubmitDisable((latestTitleValue === defaultTitleField && latestBodyValue === defaultBodyField) || 
+            latestBodyValue.trim().length <= 0 || latestTitleValue.trim().length <= 0);
     }
 
     const handleSubmit = async () => {
